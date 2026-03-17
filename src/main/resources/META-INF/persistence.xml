@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence
+        xmlns="https://jakarta.ee/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        version="3.0"
+        xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+        https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+
+    <persistence-unit name="pontoPU" transaction-type="RESOURCE_LOCAL">
+
+        <class>com.br.ponto_eletronico.entity.Funcionario</class>
+        <class>com.br.ponto_eletronico.entity.Gestor</class>
+        <class>com.br.ponto_eletronico.entity.RegistroPonto</class>
+
+        <properties>
+
+            <property name="jakarta.persistence.jdbc.driver"
+                      value="org.h2.Driver"/>
+
+            <property name="jakarta.persistence.jdbc.url"
+					  value="jdbc:h2:file:./database/ponto;DB_CLOSE_DELAY=-1" />
+
+            <property name="jakarta.persistence.jdbc.user"
+                      value="sa"/>
+
+            <property name="jakarta.persistence.jdbc.password"
+                      value=""/>
+
+            <property name="hibernate.dialect"
+                      value="org.hibernate.dialect.H2Dialect"/>
+
+            <property name="hibernate.hbm2ddl.auto"
+                      value="none"/>
+
+            <property name="hibernate.show_sql"
+                      value="true"/>
+
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
