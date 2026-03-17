@@ -1,5 +1,6 @@
 package com.br.ponto_eletronico.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import com.br.ponto_eletronico.entity.RegistroPonto;
 import com.br.ponto_eletronico.entity.TipoRegistro;
 import com.br.ponto_eletronico.exception.RegraPontoException;
 import com.br.ponto_eletronico.repository.RegistroPontoRepository;
-
 
 public class PontoService {
 
@@ -31,6 +31,32 @@ public class PontoService {
                 break;
 
             case 1:
+
+                RegistroPonto entrada = registros.get(0);
+
+                Duration diferenca = Duration.between(
+                        entrada.getHorario(),
+                        LocalDateTime.now()
+                );
+
+                long horas = diferenca.toHours();
+                long minutos = diferenca.toMinutes();
+                System.out.println("Minutos: " + minutos);
+
+                // if (horas < 2) {
+                if (minutos < 1) {
+                    throw new RegraPontoException(
+                            "Intervalo mínimo de 2 horas após a entrada."
+                    );
+                }
+
+                // if (horas > 4) {
+                // if (minutos > 3) { Conversar com a galera pq essa regra não faz sentido
+                //     throw new RegraPontoException(
+                //             "Intervalo máximo de 4 horas após a entrada."
+                //     );
+                // }
+
                 tipo = TipoRegistro.SAIDA_INTERVALO;
                 break;
 
