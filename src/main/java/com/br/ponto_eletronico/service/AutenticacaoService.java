@@ -11,6 +11,7 @@ public class AutenticacaoService {
     public Funcionario login(String matricula, String senha) {
 
         Funcionario funcionario = repository.buscarPorMatricula(matricula);
+        System.out.println("Teste->>>>>"+ funcionario);
 
         if (funcionario == null) {
             throw new AutenticacaoException("Funcionário não encontrado");

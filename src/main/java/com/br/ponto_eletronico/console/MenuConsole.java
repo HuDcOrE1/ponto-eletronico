@@ -8,6 +8,7 @@ import com.br.ponto_eletronico.entity.Funcionario;
 import com.br.ponto_eletronico.exception.AutenticacaoException;
 import com.br.ponto_eletronico.exception.RegraPontoException;
 import com.br.ponto_eletronico.service.AutenticacaoService;
+import com.br.ponto_eletronico.service.InconsistenciaService;
 import com.br.ponto_eletronico.service.PontoService;
 
 public class MenuConsole {
@@ -16,6 +17,8 @@ public class MenuConsole {
 
     private AutenticacaoService authService = new AutenticacaoService();
     private PontoService pontoService = new PontoService();
+    private InconsistenciaService inconsistenciaService =
+        new InconsistenciaService();
 
     public void iniciar() {
 
@@ -31,7 +34,6 @@ public class MenuConsole {
 
             Funcionario funcionario =
                     authService.login(matricula, senha);
-
             menu(funcionario);
 
         } catch (AutenticacaoException e) {
@@ -45,7 +47,8 @@ public class MenuConsole {
         while (true) {
 
             System.out.println("\n1 - Bater ponto");
-            System.out.println("2 - Sair");
+            System.out.println("2 - Consultar inconsistências");
+            System.out.println("3 - Sair");
 
             int op = scanner.nextInt();
 
@@ -60,6 +63,23 @@ public class MenuConsole {
             }
 
             if (op == 2) {
+
+                var lista =
+                    inconsistenciaService.listarPorFuncionario(funcionario);
+
+                if (lista.isEmpty()) {
+                    System.out.println("Nenhuma inconsistência encontrada.");
+                } else {
+                    lista.forEach(i ->
+                        System.out.println(
+                            i.getHorario() + " - " + i.getDescricao()
+                        )
+                    );
+                }
+
+            }
+
+            if (op == 3) {
                 break;
             }
 

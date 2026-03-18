@@ -9,9 +9,12 @@
 
     <persistence-unit name="pontoPU" transaction-type="RESOURCE_LOCAL">
 
+
         <class>com.br.ponto_eletronico.entity.Funcionario</class>
         <class>com.br.ponto_eletronico.entity.Gestor</class>
         <class>com.br.ponto_eletronico.entity.RegistroPonto</class>
+        <class>com.br.ponto_eletronico.entity.Inconsistencia</class>
+
 
         <properties>
 
@@ -31,7 +34,7 @@
                       value="org.hibernate.dialect.H2Dialect"/>
 
             <property name="hibernate.hbm2ddl.auto"
-                      value="none"/>
+                      value="update"/>
 
             <property name="hibernate.show_sql"
                       value="true"/>
