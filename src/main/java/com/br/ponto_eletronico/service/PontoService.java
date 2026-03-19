@@ -101,4 +101,8 @@ public class PontoService {
 
         System.out.println("Inconsistência registrada: " + descricao);
     }
+
+    public List<RegistroPonto> listarRegistroPontoPorFuncionario(Funcionario funcionario){
+        return repository.buscarRegistrosPorFuncionario(funcionario);
+    }
 }

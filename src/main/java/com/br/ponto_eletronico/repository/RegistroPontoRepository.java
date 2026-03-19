@@ -46,4 +46,16 @@ public class RegistroPontoRepository {
 
         return lista;
     }
+
+    public List<RegistroPonto> buscarRegistrosPorFuncionario(Funcionario funcionario){
+        EntityManager em = JPAUtil.getEntityManager();
+
+        List<RegistroPonto> lista = em.createQuery(
+                "FROM RegistroPonto r WHERE r.funcionario = :funcionario " +
+                "ORDER BY r.horario DESC",
+                RegistroPonto.class)
+                .setParameter("funcionario", funcionario).getResultList();
+
+        return lista;
+    }
 }
