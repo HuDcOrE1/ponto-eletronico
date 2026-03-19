@@ -2,6 +2,7 @@ package com.br.ponto_eletronico.console;
 
 
 
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import com.br.ponto_eletronico.entity.Funcionario;
@@ -74,11 +75,17 @@ public class MenuConsole {
                 if (lista.isEmpty()) {
                     System.out.println("Nenhuma inconsistência encontrada.");
                 } else {
-                    lista.forEach(i ->
+                    DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                    lista.forEach(i ->{
+
+                        
+                        String horaFmt = i.getHorario().format(format);
+                        
                         System.out.println(
-                            i.getHorario() + " - " + i.getDescricao()
-                        )
-                    );
+                            horaFmt + " - " + i.getDescricao()
+                        );
+                    });
+                
                 }
 
             }
