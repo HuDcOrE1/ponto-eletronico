@@ -114,6 +114,12 @@ public class MenuConsole {
 
                         var inconsistencias = inconsistenciaService.listarPorFuncionario(f);
 
+                        if (inconsistencias.isEmpty()) {
+                            System.out.println("Sem inconsistências registradas.");
+
+                            return;
+                        }
+
                         System.out.println("Existem inconsistências registradas.");
 
                         DateTimeFormatter formatoMesAno = DateTimeFormatter.ofPattern("MM/yyyy");
