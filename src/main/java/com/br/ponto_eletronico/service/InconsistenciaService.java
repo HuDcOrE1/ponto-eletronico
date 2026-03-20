@@ -1,5 +1,6 @@
 package com.br.ponto_eletronico.service;
 
+import java.time.YearMonth;
 import java.util.List;
 
 import com.br.ponto_eletronico.entity.Funcionario;
@@ -13,5 +14,9 @@ public class InconsistenciaService {
 
     public List<Inconsistencia> listarPorFuncionario(Funcionario f) {
         return repository.buscarPorFuncionario(f.getId());
+    }
+
+    public List<Inconsistencia> listarPorPeriodo(List<Inconsistencia> inconsistencias, YearMonth periodo) {
+        return inconsistencias.stream().filter(i -> YearMonth.from(i.getHorario()).equals(periodo)).toList();
     }
 }
