@@ -23,6 +23,7 @@ public class MenuConsole {
     private InconsistenciaService inconsistenciaService =
             new InconsistenciaService();
     private FuncionarioService funcionarioService = new FuncionarioService();
+    private GerenciaConsole gerenciaConsole = new GerenciaConsole(scanner, funcionarioService, inconsistenciaService);
 
     public void iniciar() {
 
@@ -93,65 +94,7 @@ public class MenuConsole {
             }
 
             if (op == 3 && funcionario.isGestor()) {
-                System.out.println("\n=== GERÊNCIA DE PONTO ===");
-                System.out.println("1 - Buscar funcionário por matrícula");
-                System.out.println("2 - Alterar ponto do funcionário");
-                System.out.println("0 - Voltar");
-
-                int opGerencia = scanner.nextInt();
-                scanner.nextLine();
-
-                if (opGerencia == 1) {
-                    System.out.print("Digite a matrícula: ");
-                    String matricula = scanner.nextLine();
-
-                    Funcionario f = funcionarioService.buscarPorMatricula(matricula);
-
-                    if (f != null) {
-                        System.out.println("\nFuncionário localizado:");
-                        System.out.println("Nome: " + f.getNome());
-                        System.out.println("Matrícula: " + f.getMatricula());
-
-                        var inconsistencias = inconsistenciaService.listarPorFuncionario(f);
-
-                        if (inconsistencias.isEmpty()) {
-                            System.out.println("Sem inconsistências registradas.");
-
-                            return;
-                        }
-
-                        System.out.println("Existem inconsistências registradas.");
-
-                        DateTimeFormatter formatoMesAno = DateTimeFormatter.ofPattern("MM/yyyy");
-                        YearMonth periodo = null;
-
-                        while (periodo == null) {
-                            System.out.print("Informe a competência para visualização (MM/yyyy): ");
-                            String periodoStr = scanner.nextLine();
-
-                            try {
-                                periodo = YearMonth.parse(periodoStr, formatoMesAno);
-                            } catch (DateTimeParseException e) {
-                                System.out.println("Formato inválido. Use MM/yyyy");
-                                System.out.println();
-                            }
-                        }
-
-                        var inconsistenciasPeriodo = inconsistenciaService.listarPorPeriodo(inconsistencias, periodo);
-
-                        if (!inconsistenciasPeriodo.isEmpty()) {
-                            inconsistenciasPeriodo.forEach(i -> {
-                                String horaFmt = i.getHorario().format(format);
-
-                                System.out.println(horaFmt + " - " + i.getDescricao());
-                            });
-                        } else {
-                            System.out.println("Sem inconsistências para o período informado.");
-                        }
-                    } else {
-                        System.out.println("Funcionário não encontrado.");
-                    }
-                }
+                gerenciaConsole.menu();
             }
 
             if (op == 0) {
