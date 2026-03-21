@@ -1,8 +1,9 @@
 package com.br.ponto_eletronico.console;
 
 
-
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 import com.br.ponto_eletronico.entity.Funcionario;
@@ -22,8 +23,9 @@ public class MenuConsole {
     private AutenticacaoService authService = new AutenticacaoService();
     private PontoService pontoService = new PontoService();
     private InconsistenciaService inconsistenciaService =
-        new InconsistenciaService();
+            new InconsistenciaService();
     private FuncionarioService funcionarioService = new FuncionarioService();
+    private GerenciaConsole gerenciaConsole = new GerenciaConsole(scanner, funcionarioService, inconsistenciaService);
 
     public void iniciar() {
 
@@ -73,7 +75,7 @@ public class MenuConsole {
             if (op == 2) {
 
                 var lista =
-                    inconsistenciaService.listarPorFuncionario(funcionario);
+                        inconsistenciaService.listarPorFuncionario(funcionario);
 
                 if (lista.isEmpty()) {
                     System.out.println("Nenhuma inconsistência encontrada.");
@@ -81,14 +83,14 @@ public class MenuConsole {
                     DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
                     lista.forEach(i ->{
 
-                        
+
                         String horaFmt = i.getHorario().format(format);
-                        
+
                         System.out.println(
-                            horaFmt + " - " + i.getDescricao()
+                                horaFmt + " - " + i.getDescricao()
                         );
                     });
-                
+
                 }
 
             }
@@ -100,29 +102,9 @@ public class MenuConsole {
             }
 
             if (op == 4 && funcionario.isGestor()) {
-                System.out.println("\n=== GERÊNCIA DE PONTO ===");
-                System.out.println("1 - Buscar funcionário por matrícula");
-                System.out.println("2 - Alterar ponto do funcionário");
-                System.out.println("0 - Voltar");
-
-                int opGerencia = scanner.nextInt();
-                scanner.nextLine();
-
-                if (opGerencia == 1) {
-                    System.out.print("Digite a matrícula: ");
-                    String matricula = scanner.nextLine();
-
-                    Funcionario f = funcionarioService.buscarPorMatricula(matricula);
-
-                    if (f != null) {
-                        System.out.println("\nFuncionário localizado:");
-                        System.out.println("Nome: " + f.getNome());
-                        System.out.println("Matrícula: " + f.getMatricula());
-                    } else {
-                        System.out.println("Funcionário não encontrado.");
-                    }
-                }
+                gerenciaConsole.menu();
             }
+
 
             if (op == 0) {
                 break;
