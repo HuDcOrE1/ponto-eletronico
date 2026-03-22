@@ -3,6 +3,7 @@ package com.br.ponto_eletronico.console;
 import com.br.ponto_eletronico.entity.Funcionario;
 import com.br.ponto_eletronico.service.FuncionarioService;
 import com.br.ponto_eletronico.service.InconsistenciaService;
+import com.br.ponto_eletronico.service.RelatorioService;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -15,14 +16,14 @@ public class GerenciaConsole {
     private InconsistenciaService inconsistenciaService;
     private DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private RelatorioService relatorioService = new RelatorioService();
-    private RelatorioConsole relatorioConsole = new RelatorioConsole(scanner, funcionarioService, relatorioService);
+    private RelatorioConsole relatorioConsole;
 
 
-    public GerenciaConsole(Scanner scanner, FuncionarioService funcionarioService, InconsistenciaService inconsistenciaService, RelatiorioConsole relatiorioConsole) {
+    public GerenciaConsole(Scanner scanner, FuncionarioService funcionarioService, InconsistenciaService inconsistenciaService) {
         this.scanner = scanner;
         this.funcionarioService = funcionarioService;
         this.inconsistenciaService = inconsistenciaService;
-        this.relatorioConsole = relatiorioConsole;
+        this.relatorioConsole = new RelatorioConsole(scanner, funcionarioService, relatorioService);
     }
 
     public void menu() {
@@ -35,15 +36,16 @@ public class GerenciaConsole {
         int opGerencia = scanner.nextInt();
         scanner.nextLine();
 
-        switch (opGerencia):
+        switch (opGerencia){
             case 1:
                 buscarFuncionarioPorMatricula();
                 break;
             case 3:
                 relatorioConsole.exibirRelatorios(scanner);
                 break;
-        default:
-            break;
+            default:
+                break;
+        }
     }
 
     private void buscarFuncionarioPorMatricula() {
