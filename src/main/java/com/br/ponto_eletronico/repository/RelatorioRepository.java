@@ -6,6 +6,7 @@ import com.br.ponto_eletronico.entity.RegistroPonto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,20 +29,23 @@ public class RelatorioRepository {
         }
     }
 
-    public List<RegistroPonto> buscarPorFuncionario(String matricula, int ano, int mes) {
+    public List<RegistroPonto> buscarPorFuncionario(Long funcionarioId, int ano, int mes) {
+
         EntityManager em = JPAUtil.getEntityManager();
         try {
+            LocalDateTime inicio = LocalDate.of(ano, mes, 1).atStartOfDay();
+            LocalDateTime fim = inicio.plusMonths(1);
 
             return em.createQuery(
                             "SELECT rp FROM RegistroPonto rp " +
-                                    "WHERE rp.matricula = :matricula " +
-                                    "AND YEAR(rp.horario) = :ano " +
-                                    "AND MONTH(rp.horario) = :mes " +
+                                    "WHERE rp.funcionario.id = :funcionarioId " +
+                                    "AND rp.horario >= :inicio " +
+                                    "AND rp.horario < :fim " +
                                     "ORDER BY rp.horario",
                             RegistroPonto.class)
-                    .setParameter("matricula", matricula)
-                    .setParameter("ano", ano)
-                    .setParameter("mes", mes)
+                    .setParameter("funcionarioId", funcionarioId)
+                    .setParameter("inicio", inicio)
+                    .setParameter("fim", fim)
                     .getResultList();
 
         } catch (NoResultException e) {
@@ -77,4 +81,28 @@ public class RelatorioRepository {
             em.close();
         }
     }
+
+    public long contarInconsistencias(Long funcionarioId, int ano, int mes) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+
+            LocalDateTime inicio = LocalDate.of(ano, mes, 1).atStartOfDay();
+            LocalDateTime fim = inicio.plusMonths(1);
+
+            return em.createQuery(
+                            "SELECT COUNT(i) FROM Inconsistencia i " +
+                                    "WHERE i.funcionario.id = :funcionarioId " +
+                                    "AND i.horario >= :inicio " +
+                                    "AND i.horario < :fim",
+                            Long.class)
+                    .setParameter("funcionarioId", funcionarioId)
+                    .setParameter("inicio", inicio)
+                    .setParameter("fim", fim)
+                    .getSingleResult();
+
+        } finally {
+            em.close();
+        }
+    }
+
 }

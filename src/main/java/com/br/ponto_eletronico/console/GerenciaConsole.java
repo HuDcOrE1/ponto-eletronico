@@ -14,25 +14,36 @@ public class GerenciaConsole {
     private FuncionarioService funcionarioService;
     private InconsistenciaService inconsistenciaService;
     private DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private RelatorioService relatorioService = new RelatorioService();
+    private RelatorioConsole relatorioConsole = new RelatorioConsole(scanner, funcionarioService, relatorioService);
 
-    public GerenciaConsole(Scanner scanner, FuncionarioService funcionarioService, InconsistenciaService inconsistenciaService) {
+
+    public GerenciaConsole(Scanner scanner, FuncionarioService funcionarioService, InconsistenciaService inconsistenciaService, RelatiorioConsole relatiorioConsole) {
         this.scanner = scanner;
         this.funcionarioService = funcionarioService;
         this.inconsistenciaService = inconsistenciaService;
+        this.relatorioConsole = relatiorioConsole;
     }
 
     public void menu() {
         System.out.println("\n=== GERÊNCIA DE PONTO ===");
         System.out.println("1 - Buscar funcionário por matrícula");
         System.out.println("2 - Alterar ponto do funcionário");
+        System.out.println("3 - Relatórios Gerenciais");
         System.out.println("0 - Voltar");
 
         int opGerencia = scanner.nextInt();
         scanner.nextLine();
 
-        if (opGerencia == 1) {
-            buscarFuncionarioPorMatricula();
-        }
+        switch (opGerencia):
+            case 1:
+                buscarFuncionarioPorMatricula();
+                break;
+            case 3:
+                relatorioConsole.exibirRelatorios(scanner);
+                break;
+        default:
+            break;
     }
 
     private void buscarFuncionarioPorMatricula() {
