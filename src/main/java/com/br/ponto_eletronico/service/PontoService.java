@@ -3,10 +3,14 @@ package com.br.ponto_eletronico.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import com.br.ponto_eletronico.entity.*;
 import com.br.ponto_eletronico.repository.InconsistenciaRepository;
 import com.br.ponto_eletronico.repository.RegistroPontoRepository;
+import com.br.ponto_eletronico.exception.RegraPontoException;
 
 public class PontoService {
 
@@ -100,5 +104,37 @@ public class PontoService {
         inconsistenciaRepository.salvar(i);
 
         System.out.println("Inconsistência registrada: " + descricao);
+    }
+
+    public void resolverInconsistencia(Long idInconsistencia, List<String> horariosStr) throws RegraPontoException {
+        Inconsistencia i = inconsistenciaRepository.buscarPorId(idInconsistencia);
+        if (i == null) {
+            throw new RegraPontoException("Inconsistência não encontrada.");
+        }
+
+        if (horariosStr.size() != 4) {
+            throw new RegraPontoException("São necessários exatamente 4 horários para o ponto diário completo.");
+        }
+
+        Funcionario f = i.getFuncionario();
+        LocalDate dataInconsistencia = i.getHorario().toLocalDate();
+
+        List<RegistroPonto> registrosExistentes = repository.buscarRegistrosPorData(f, dataInconsistencia);
+        repository.deletarLista(registrosExistentes);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        TipoRegistro[] tipos = {TipoRegistro.ENTRADA, TipoRegistro.SAIDA_INTERVALO, TipoRegistro.VOLTA_INTERVALO, TipoRegistro.SAIDA};
+
+        for (int j = 0; j < 4; j++) {
+            LocalTime hora = LocalTime.parse(horariosStr.get(j), timeFormatter);
+            RegistroPonto novoRegistro = new RegistroPonto();
+            novoRegistro.setFuncionario(f);
+            novoRegistro.setHorario(LocalDateTime.of(dataInconsistencia, hora));
+            novoRegistro.setTipo(tipos[j]);
+            repository.salvar(novoRegistro);
+        }
+
+        inconsistenciaRepository.deletar(i);
+        System.out.println("Inconsistência resolvida e pontos sobresscritos.");
     }
 }
