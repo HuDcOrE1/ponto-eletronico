@@ -56,6 +56,8 @@ public class MenuConsole {
             System.out.println("2 - Consultar inconsistências");
             if (funcionario.isGestor())
                 System.out.println("3 - Gerência de ponto");
+            //Descomentar apenas para gerar massa de dados
+            //System.out.println("4 - Gerar pontos");
             System.out.println("0 - Sair");
 
             int op = scanner.nextInt();
@@ -96,6 +98,17 @@ public class MenuConsole {
             if (op == 3 && funcionario.isGestor()) {
                 gerenciaConsole.menu();
             }
+
+            //Descomentar apenas para gerar massa de dados
+            /*if (op == 4) {
+
+                try {
+                    GeradorPontos.executar();
+                } catch (RegraPontoException e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }*/
 
             if (op == 0) {
                 break;
