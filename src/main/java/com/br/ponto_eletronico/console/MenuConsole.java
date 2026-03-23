@@ -1,10 +1,17 @@
 package com.br.ponto_eletronico.console;
 
 
+import java.awt.image.renderable.RenderableImage;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.br.ponto_eletronico.entity.Funcionario;
 import com.br.ponto_eletronico.entity.RegistroPonto;
@@ -15,6 +22,7 @@ import com.br.ponto_eletronico.service.AutenticacaoService;
 import com.br.ponto_eletronico.service.FuncionarioService;
 import com.br.ponto_eletronico.service.InconsistenciaService;
 import com.br.ponto_eletronico.service.PontoService;
+import jdk.swing.interop.SwingInterOpUtils;
 
 public class MenuConsole {
 
@@ -96,9 +104,19 @@ public class MenuConsole {
             }
 
             if(op == 3) {
-                for(RegistroPonto ponto: pontoService.listarRegistroPontoPorFuncionario(funcionario)){
+                var dataList = pontoService.listarRegistroPontoPorFuncionario(funcionario).stream().collect(Collectors.groupingBy(item -> {
+                    return item.getHorario().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                }));
 
-                }
+                dataList.forEach((dataPonto, listaPonto) -> {
+                    System.out.println("Data - " + dataPonto);
+                    int counter = 0;
+                    String[] etiquetas = {"ENTRADA", "SAIDA INT", "VOLTA INT", "SAIDA"};
+                    for(RegistroPonto horario: listaPonto) {
+                        System.out.println(etiquetas[counter] + " - " + horario.getHorario().format(DateTimeFormatter.ofPattern("hh:mm:ss")));
+                        counter += 1;
+                    }
+                });
             }
 
             if (op == 4 && funcionario.isGestor()) {
