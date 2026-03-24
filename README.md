@@ -13,22 +13,35 @@ ponto-eletronico
     │
     ├── config
     │     ├── DataBaseInitialize.java
+    │     ├── DataLoader.java
+    │     ├── H2Console.java
     │     ├── JPAUtil.java
     │     └── SqlFileLogger.java
     │
+    ├── console
+    │     ├── GeradorPontos.java
+    │     ├── GerenciaConsole.java
+    │     └── MenuConsole.java
+    │     └── RelatorioConsole.java
     ├── entity
     │     ├── Funcionario.java
     │     ├── Gestor.java
+    │     ├── Inconsistencia.java
     │     └── RegistroPonto.java
     │     └── TipoRegistro.java
     │
     ├── repository
     │     ├── FuncionarioRepository.java
-    │     └── RegistroPontoRepository.java
+    │     └── InconsistenciaRepository.java
+    │     ├── RegistroPontoRepository.java
+    │     └── RelatorioRepository.java
     │
     ├── service
     │     ├── AutenticacaoService.java
+    │     └── FuncionarioService.java
+    │     ├── InconsistenciaService.java
     │     └── PontoService.java
+    │     └── RelatorioService.java
     │
     ├── exception
     │     ├── RegraPontoException.java
@@ -39,6 +52,9 @@ ponto-eletronico
           
     O projeto está rodando com o Java 25 e apache-maven-3.9.14
     Está usando o banco H2, mas está fazendo um registro vitual no ponto.mv.db (ainda vou corrigir)
+
+Rodar o banco no Browser
+    http://localhost:8082/
           
 *** ==================== *** - MVP - *** ==================== ***
 Personas:
