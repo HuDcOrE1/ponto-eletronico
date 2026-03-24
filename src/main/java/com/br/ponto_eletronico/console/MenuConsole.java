@@ -1,18 +1,28 @@
 package com.br.ponto_eletronico.console;
 
 
+import java.awt.image.renderable.RenderableImage;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.br.ponto_eletronico.entity.Funcionario;
+import com.br.ponto_eletronico.entity.RegistroPonto;
 import com.br.ponto_eletronico.exception.AutenticacaoException;
 import com.br.ponto_eletronico.exception.RegraPontoException;
+import com.br.ponto_eletronico.repository.RegistroPontoRepository;
 import com.br.ponto_eletronico.service.AutenticacaoService;
 import com.br.ponto_eletronico.service.FuncionarioService;
 import com.br.ponto_eletronico.service.InconsistenciaService;
 import com.br.ponto_eletronico.service.PontoService;
+import jdk.swing.interop.SwingInterOpUtils;
 
 public class MenuConsole {
 
@@ -50,14 +60,12 @@ public class MenuConsole {
     private void menu(Funcionario funcionario) {
 
         while (true) {
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
             System.out.println("\n1 - Bater ponto");
             System.out.println("2 - Consultar inconsistências");
+            System.out.println("3 - Consultar ponto");
             if (funcionario.isGestor())
-                System.out.println("3 - Gerência de ponto");
-            //Descomentar apenas para gerar massa de dados
-            //System.out.println("4 - Gerar pontos");
+                System.out.println("4 - Gerência de ponto");
             System.out.println("0 - Sair");
 
             int op = scanner.nextInt();
@@ -80,8 +88,8 @@ public class MenuConsole {
                 if (lista.isEmpty()) {
                     System.out.println("Nenhuma inconsistência encontrada.");
                 } else {
-
-                    lista.forEach(i -> {
+                    DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                    lista.forEach(i ->{
 
 
                         String horaFmt = i.getHorario().format(format);
@@ -95,12 +103,28 @@ public class MenuConsole {
 
             }
 
-            if (op == 3 && funcionario.isGestor()) {
+            if(op == 3) {
+                var dataList = pontoService.listarRegistroPontoPorFuncionario(funcionario).stream().collect(Collectors.groupingBy(item -> {
+                    return item.getHorario().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                }));
+
+                dataList.forEach((dataPonto, listaPonto) -> {
+                    System.out.println("Data - " + dataPonto);
+                    int counter = 0;
+                    String[] etiquetas = {"ENTRADA", "SAIDA INT", "VOLTA INT", "SAIDA"};
+                    for(RegistroPonto horario: listaPonto) {
+                        System.out.println(etiquetas[counter] + " - " + horario.getHorario().format(DateTimeFormatter.ofPattern("hh:mm:ss")));
+                        counter += 1;
+                    }
+                });
+            }
+
+            if (op == 4 && funcionario.isGestor()) {
                 gerenciaConsole.menu();
             }
 
             //Descomentar apenas para gerar massa de dados
-            /*if (op == 4) {
+            /*if (op == 5) {
 
                 try {
                     GeradorPontos.executar();

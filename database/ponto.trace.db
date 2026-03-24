@@ -135,6 +135,7 @@ org.h2.message.DbException: General error: "org.h2.mvstore.MVStoreException: The
 	at jakarta.persistence.Persistence.createEntityManagerFactory(Persistence.java:80)
 	at jakarta.persistence.Persistence.createEntityManagerFactory(Persistence.java:55)
 	at com.br.ponto_eletronico.config.JPAUtil.<clinit>(JPAUtil.java:10)
+<<<<<<< HEAD
 	at com.br.ponto_eletronico.config.DataLoader.load(DataLoader.java:11)
 	at com.br.ponto_eletronico.app.Application.main(Application.java:11)
 Caused by: org.h2.jdbc.JdbcSQLNonTransientException: General error: "org.h2.mvstore.MVStoreException: The file is locked: C:/Users/Jaime Santiago/IdeaProjects/ponto-eletronico/database/ponto.mv.db [2.2.224/7]" [50000-224]
@@ -142,6 +143,15 @@ Caused by: org.h2.jdbc.JdbcSQLNonTransientException: General error: "org.h2.mvst
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 45 more
 Caused by: org.h2.mvstore.MVStoreException: The file is locked: C:/Users/Jaime Santiago/IdeaProjects/ponto-eletronico/database/ponto.mv.db [2.2.224/7]
+=======
+	at com.br.ponto_eletronico.config.DataLoader.load(DataLoader.java:10)
+	at com.br.ponto_eletronico.app.Application.main(Application.java:11)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientException: General error: "org.h2.mvstore.MVStoreException: The file is locked: /home/jeanoliveira/Publico/ponto-eletronico/database/ponto.mv.db [2.2.224/7]" [50000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:566)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 45 more
+Caused by: org.h2.mvstore.MVStoreException: The file is locked: /home/jeanoliveira/Publico/ponto-eletronico/database/ponto.mv.db [2.2.224/7]
+>>>>>>> origin/feat/consulta
 	at org.h2.mvstore.DataUtils.newMVStoreException(DataUtils.java:996)
 	at org.h2.mvstore.SingleFileStore.lockFileChannel(SingleFileStore.java:143)
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:117)

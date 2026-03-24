@@ -218,4 +218,9 @@ public class PontoService {
 
         repository.salvar(registro);
     }
+
+    
+    public List<RegistroPonto> listarRegistroPontoPorFuncionario(Funcionario funcionario){
+        return repository.buscarRegistrosPorFuncionario(funcionario);
+    }
 }
