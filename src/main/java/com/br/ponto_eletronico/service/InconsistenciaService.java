@@ -19,4 +19,8 @@ public class InconsistenciaService {
     public List<Inconsistencia> listarPorPeriodo(List<Inconsistencia> inconsistencias, YearMonth periodo) {
         return inconsistencias.stream().filter(i -> YearMonth.from(i.getHorario()).equals(periodo)).toList();
     }
+
+    public List<Inconsistencia> listarTodas() {
+        return repository.buscarTodas();
+    }
 }
