@@ -55,6 +55,7 @@ ponto-eletronico
 
 Rodar o banco no Browser
     http://localhost:8082/
+    Usar a URL que está no persistence
           
 *** ==================== *** - MVP - *** ==================== ***
 Personas:
