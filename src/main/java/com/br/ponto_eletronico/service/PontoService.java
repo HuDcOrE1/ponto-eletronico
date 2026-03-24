@@ -1,6 +1,7 @@
 package com.br.ponto_eletronico.service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,10 +25,18 @@ public class PontoService {
         TipoRegistro tipo;
 
         switch (registros.size()) {
-            case 0: tipo = TipoRegistro.ENTRADA; break;
-            case 1: tipo = TipoRegistro.SAIDA_INTERVALO; break;
-            case 2: tipo = TipoRegistro.VOLTA_INTERVALO; break;
-            case 3: tipo = TipoRegistro.SAIDA; break;
+            case 0:
+                tipo = TipoRegistro.ENTRADA;
+                break;
+            case 1:
+                tipo = TipoRegistro.SAIDA_INTERVALO;
+                break;
+            case 2:
+                tipo = TipoRegistro.VOLTA_INTERVALO;
+                break;
+            case 3:
+                tipo = TipoRegistro.SAIDA;
+                break;
             default:
                 System.out.println("Limite de registros atingido.");
                 return;
@@ -44,38 +53,51 @@ public class PontoService {
             RegistroPonto ultimo =
                     registros.get(registros.size() - 1);
 
-            Duration diff =
-                    Duration.between(ultimo.getHorario(), agora);
+            if (ultimo.getTipo() == TipoRegistro.SAIDA_INTERVALO) {
+                Duration diff =
+                        Duration.between(ultimo.getHorario(), agora);
 
-            long minutos = diff.toMinutes();
+                long minutos = diff.toMinutes();
 
-            // Regra 1: menor que 30 min
-            if (minutos < 30) {
-                salvarInconsistencia(funcionario,
-                        "Intervalo menor que 30 minutos");
-            }
+                // Regra 1: menor que 30 min
+                if (minutos < 30) {
+                    salvarInconsistencia(funcionario,
+                            "Intervalo menor que 30 minutos");
+                }
 
-            // Regra 2: maior que 2 horas
-            if (minutos > 120) {
-                salvarInconsistencia(funcionario,
-                        "Intervalo maior que 2 horas");
+                // Regra 2: maior que 2 horas
+                if (minutos > 120) {
+                    salvarInconsistencia(funcionario,
+                            "Intervalo maior que 2 horas");
+                }
             }
         }
 
-        // Regra 3: jornada maior que 6h
-        if (registros.size() >= 1) {
+        if (tipo == TipoRegistro.SAIDA) {
+            Duration jornada;
 
-            RegistroPonto entrada = registros.get(0);
+            if (registros.size() >= 3) {
+                RegistroPonto entrada = registros.get(0);
+                RegistroPonto saidaIntervalo = registros.get(1);
+                RegistroPonto voltaIntervalo = registros.get(2);
 
-            Duration jornada =
-                    Duration.between(entrada.getHorario(), agora);
+                Duration antesIntervalo =
+                        Duration.between(entrada.getHorario(), saidaIntervalo.getHorario());
 
-            if (jornada.toHours() > 6) {
+                Duration depoisIntervalo =
+                        Duration.between(voltaIntervalo.getHorario(), agora);
+
+                jornada = antesIntervalo.plus(depoisIntervalo);
+            } else {
+                RegistroPonto entrada = registros.get(0);
+                jornada = Duration.between(entrada.getHorario(), agora);
+            }
+
+            if (jornada.toMinutes() > 370) {
                 salvarInconsistencia(funcionario,
                         "Jornada maior que 6 horas");
             }
         }
-
         // =========================
 
         RegistroPonto registro = new RegistroPonto();
@@ -89,7 +111,7 @@ public class PontoService {
     }
 
     private void salvarInconsistencia(Funcionario funcionario,
-                                     String descricao) {
+                                      String descricao) {
 
         Inconsistencia i = new Inconsistencia();
 
@@ -100,5 +122,100 @@ public class PontoService {
         inconsistenciaRepository.salvar(i);
 
         System.out.println("Inconsistência registrada: " + descricao);
+    }
+
+    private void salvarInconsistenciaAntiga(Funcionario funcionario,
+                                            String descricao, LocalDateTime horario) {
+
+        Inconsistencia i = new Inconsistencia();
+
+        i.setFuncionario(funcionario);
+        i.setDescricao(descricao);
+        i.setHorario(horario);
+
+        inconsistenciaRepository.salvar(i);
+
+        System.out.println("Inconsistência registrada: " + descricao);
+    }
+
+    public void baterPontoAntigo(Funcionario funcionario, LocalDateTime horario) {
+        LocalDate dia = horario.toLocalDate();
+
+        List<RegistroPonto> registros =
+                repository.buscarRegistrosDia(funcionario, dia);
+
+        TipoRegistro tipo;
+
+        switch (registros.size()) {
+            case 0:
+                tipo = TipoRegistro.ENTRADA;
+                break;
+            case 1:
+                tipo = TipoRegistro.SAIDA_INTERVALO;
+                break;
+            case 2:
+                tipo = TipoRegistro.VOLTA_INTERVALO;
+                break;
+            case 3:
+                tipo = TipoRegistro.SAIDA;
+                break;
+            default:
+                return;
+        }
+
+        // =========================
+        // REGRAS
+        // =========================
+
+        if (!registros.isEmpty()) {
+            RegistroPonto ultimo = registros.get(registros.size() - 1);
+
+            if (ultimo.getTipo() == TipoRegistro.SAIDA_INTERVALO) {
+                Duration diff = Duration.between(ultimo.getHorario(), horario);
+                long minutos = diff.toMinutes();
+
+                if (minutos < 0) return;
+
+                if (minutos < 30) {
+                    salvarInconsistenciaAntiga(funcionario,
+                            "Intervalo menor que 30 minutos", horario);
+                }
+
+                if (minutos > 120) {
+                    salvarInconsistenciaAntiga(funcionario,
+                            "Intervalo maior que 2 horas", horario);
+                }
+            }
+        }
+
+        if (tipo == TipoRegistro.SAIDA) {
+            Duration jornada;
+
+            if (registros.size() >= 3) {
+                RegistroPonto entrada = registros.get(0);
+                RegistroPonto saidaIntervalo = registros.get(1);
+                RegistroPonto voltaIntervalo = registros.get(2);
+
+                Duration antesIntervalo =
+                        Duration.between(entrada.getHorario(), saidaIntervalo.getHorario());
+
+                Duration depoisIntervalo =
+                        Duration.between(voltaIntervalo.getHorario(), horario);
+
+                jornada = antesIntervalo.plus(depoisIntervalo);
+            } else {
+                RegistroPonto entrada = registros.get(0);
+                jornada = Duration.between(entrada.getHorario(), horario);
+            }
+
+            if (jornada.toMinutes() > 370) {
+                salvarInconsistenciaAntiga(funcionario,
+                        "Jornada maior que 6 horas", horario);
+            }
+        }
+
+        RegistroPonto registro = new RegistroPonto(funcionario, horario, tipo);
+
+        repository.salvar(registro);
     }
 }

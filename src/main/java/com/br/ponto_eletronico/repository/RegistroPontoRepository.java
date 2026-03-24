@@ -46,4 +46,26 @@ public class RegistroPontoRepository {
 
         return lista;
     }
+
+    public List<RegistroPonto> buscarRegistrosDia(Funcionario funcionario, LocalDate dia) {
+
+        EntityManager em = JPAUtil.getEntityManager();
+
+        LocalDateTime inicio = dia.atStartOfDay();
+        LocalDateTime fim = dia.atTime(23,59,59);
+
+        List<RegistroPonto> lista = em.createQuery(
+                        "FROM RegistroPonto r WHERE r.funcionario = :funcionario " +
+                                "AND r.horario BETWEEN :inicio AND :fim " +
+                                "ORDER BY r.horario",
+                        RegistroPonto.class)
+                .setParameter("funcionario", funcionario)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
+
+        em.close();
+
+        return lista;
+    }
 }
