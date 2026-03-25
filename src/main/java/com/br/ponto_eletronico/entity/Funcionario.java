@@ -5,26 +5,21 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "FUNCIONARIO")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Funcionario {
+@DiscriminatorColumn(name = "TIPO_FUNCIONARIO")
+public abstract class Funcionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "MATRICULA")
+    @Column(nullable = false, unique = true)
     private String matricula;
 
-    @Column(name = "SENHA")
+    @Column(nullable = false)
     private String senha;
 
-    @Column(name = "NOME")
+    @Column(nullable = false)
     private String nome;
-
-    @Column(name = "GESTOR")
-    private boolean gestor;
-
-    public Funcionario() {
-    }
 
     public Long getId() {
         return id;
@@ -42,10 +37,6 @@ public class Funcionario {
         return nome;
     }
 
-    public boolean isGestor() {
-        return gestor;
-    }
-
     public void setMatricula(String matricula) {
         this.matricula = matricula;
     }
@@ -58,7 +49,7 @@ public class Funcionario {
         this.nome = nome;
     }
 
-    public void setGestor(boolean gestor) {
-        this.gestor = gestor;
+    public boolean isGestor() {
+        return this instanceof Gestor;
     }
 }

@@ -6,10 +6,7 @@ import com.br.ponto_eletronico.Records.Relatorio.GestaoHoras;
 import com.br.ponto_eletronico.Records.Relatorio.MarcacaoPonto;
 import com.br.ponto_eletronico.Records.Relatorio.MarcacaoPonto;
 import com.br.ponto_eletronico.Records.Relatorio.SituacaoMensal;
-import com.br.ponto_eletronico.entity.Funcionario;
-import com.br.ponto_eletronico.entity.Inconsistencia;
-import com.br.ponto_eletronico.entity.RegistroPonto;
-import com.br.ponto_eletronico.entity.TipoRegistro;
+import com.br.ponto_eletronico.entity.*;
 import com.br.ponto_eletronico.repository.InconsistenciaRepository;
 import com.br.ponto_eletronico.repository.RelatorioRepository;
 
@@ -31,14 +28,14 @@ public class RelatorioService {
     private InconsistenciaService inconsistenciaService =
             new InconsistenciaService();
 
-    public ControleDiario gerarRelatorioControleDiario(Funcionario funcionario) {
+    public ControleDiario gerarRelatorioControleDiario(FuncionarioComum funcionario) {
 
         LocalDate hoje = LocalDate.now();
         LocalDateTime now = LocalDate.now().atStartOfDay();
         List<Inconsistencia> inconsistencias = inconsistenciaService.getPorFuncionarioData(funcionario, now);
         List<RegistroPonto> registros =
                 repository.buscarPorFuncionario(
-                        funcionario.getMatricula(),
+                        funcionario,
                         hoje.getYear(),
                         hoje.getMonthValue(),
                         hoje.getDayOfMonth()
@@ -65,7 +62,7 @@ public class RelatorioService {
         return controle;
     }
 
-    public List<GestaoHoras> gerarRelatorioGestaoHoras(Funcionario funcionario, int ano, int mes) {
+    public List<GestaoHoras> gerarRelatorioGestaoHoras(FuncionarioComum funcionario, int ano, int mes) {
         List<GestaoHoras> relatorio = new ArrayList<>();
 
         List<RegistroPonto> registros =
@@ -118,7 +115,7 @@ public class RelatorioService {
         return relatorio;
     }
 
-    public String gerarCsv(Integer op, int ano, int mes, Path ABSOLUTE_PATH, Funcionario funcionario) {
+    public String gerarCsv(Integer op, int ano, int mes, Path ABSOLUTE_PATH, FuncionarioComum funcionario) {
         StringBuilder csv = new StringBuilder();
         String nomeArquivo;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");

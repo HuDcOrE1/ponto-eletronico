@@ -4,13 +4,14 @@ import com.br.ponto_eletronico.Records.Relatorio.ControleDiario;
 import com.br.ponto_eletronico.Records.Relatorio.GestaoHoras;
 import com.br.ponto_eletronico.Records.Relatorio.SituacaoMensal;
 import com.br.ponto_eletronico.Records.Util.Competencia;
-import com.br.ponto_eletronico.entity.Funcionario;
+import com.br.ponto_eletronico.entity.FuncionarioComum;
 import com.br.ponto_eletronico.service.FuncionarioService;
 import com.br.ponto_eletronico.service.RelatorioService;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class RelatorioConsole {
@@ -65,18 +66,18 @@ public class RelatorioConsole {
         scanner.nextLine();
         System.out.print("Digite a matrícula: ");
         String matricula = scanner.nextLine();
-        Funcionario f = funcionarioService.buscarPorMatricula(matricula);
+        FuncionarioComum funcionario = funcionarioService.buscarPorMatricula(matricula);
 
-        if (f != null) {
+        if (Objects.nonNull(funcionario)) {
             System.out.println("\nFuncionário localizado:");
-            System.out.println("Nome: " + f.getNome());
-            System.out.println("Matrícula: " + f.getMatricula());
+            System.out.println("Nome: " + funcionario.getNome());
+            System.out.println("Matrícula: " + funcionario.getMatricula());
 
-            ControleDiario relatorioCD = relatorioService.gerarRelatorioControleDiario(f);
+            ControleDiario relatorioCD = relatorioService.gerarRelatorioControleDiario(funcionario);
             System.out.println(relatorioCD.toString());
 
             Path basePath = Paths.get("relatorio", "ControleDiario");
-            solicitarExportacaoCsv(scanner, op, basePath,0, 0, f);
+            solicitarExportacaoCsv(scanner, op, basePath,0, 0, funcionario);
         } else {
             System.out.println("Funcionário não encontrado.");
         }
@@ -85,17 +86,17 @@ public class RelatorioConsole {
         scanner.nextLine();
         System.out.print("Digite a matrícula: ");
         String matricula = scanner.nextLine();
-        Funcionario f = funcionarioService.buscarPorMatricula(matricula);
-        if (f != null) {
+        FuncionarioComum funcionario = funcionarioService.buscarPorMatricula(matricula);
+        if (Objects.nonNull(funcionario)) {
             System.out.println("\nFuncionário localizado:");
-            System.out.println("Nome: " + f.getNome());
-            System.out.println("Matrícula: " + f.getMatricula());
+            System.out.println("Nome: " + funcionario.getNome());
+            System.out.println("Matrícula: " + funcionario.getMatricula());
             Competencia competencia = solicitarCompetencia(scanner);
-            List<GestaoHoras> list = relatorioService.gerarRelatorioGestaoHoras(f, competencia.ano(), competencia.mes());
+            List<GestaoHoras> list = relatorioService.gerarRelatorioGestaoHoras(funcionario, competencia.ano(), competencia.mes());
             list.forEach(System.out::println);
 
             Path basePath = Paths.get("relatorio", "GestaoHoras");
-            solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes(), f);
+            solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes(), funcionario);
         } else {
             System.out.println("Funcionário não encontrado.");
         }
@@ -112,7 +113,7 @@ public class RelatorioConsole {
         solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes(), null);
     }
 
-    public void solicitarExportacaoCsv(Scanner scanner, int op, Path ABSOLUTE_PATH, int ano, int mes, Funcionario funcionario){
+    public void solicitarExportacaoCsv(Scanner scanner, int op, Path ABSOLUTE_PATH, int ano, int mes, FuncionarioComum funcionario){
         System.out.println("\n=== EXPORTAR RELATÓRIO PARA CSV ===");
         System.out.println("0 - NÃO");
         System.out.println("1 - SIM");

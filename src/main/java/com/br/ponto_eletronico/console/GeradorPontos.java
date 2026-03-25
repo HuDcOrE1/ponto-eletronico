@@ -23,7 +23,7 @@ public class GeradorPontos {
                             "SELECT f FROM Funcionario f WHERE f.matricula NOT IN :mats",
                             Funcionario.class
                     )
-                    .setParameter("mats", List.of("1001", "1002", "1003", "1004", "1005"))
+                    .setParameter("mats", List.of("2005", "3001", "3002", "3003", "3004"))
                     .getResultList();
 
             for (Funcionario f : funcionarios) {
@@ -75,7 +75,7 @@ public class GeradorPontos {
                     service.baterPontoAntigo(f, voltaIntervalo);
                     service.baterPontoAntigo(f, saidaFinal);
 
-                    System.out.println("Dia " + data + " gerado");
+                    //System.out.println("Dia " + data + " gerado");
                 }
             }
 
