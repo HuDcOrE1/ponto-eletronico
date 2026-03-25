@@ -1,5 +1,8 @@
 # Sistema de Ponto Eletrônico
 
+## Diagrama
+<img width="1019" height="535" alt="image" src="https://github.com/user-attachments/assets/f34d19e9-1208-4030-bfd3-839902c99fcc" />
+
 ## Resumo
 
 Este projeto apresenta o desenvolvimento de um **Sistema de Ponto Eletrônico** utilizando a linguagem Java, com foco na aplicação de **boas práticas de modelagem orientada a objetos**, **persistência com JPA/Hibernate** e **organização em camadas**. O sistema permite o registro de jornada de trabalho, identificação automática de inconsistências e suporte à gestão por meio de hierarquia entre gestores e funcionários.
