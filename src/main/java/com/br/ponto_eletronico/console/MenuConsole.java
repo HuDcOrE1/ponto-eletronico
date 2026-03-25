@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -104,19 +105,23 @@ public class MenuConsole {
             }
 
             if(op == 3) {
-                var dataList = pontoService.listarRegistroPontoPorFuncionario(funcionario).stream().collect(Collectors.groupingBy(item -> {
-                    return item.getHorario().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-                }));
+                System.out.println("Digite o mês e o ano que deseja consultar (MM/yyyy):");
+                String mesAno = scanner.next();
+                if(mesAno.matches("^(0[1-9]|1[0-2])\\/\\d{4}$")){
+                    Map<String, List<RegistroPonto>> pontoAgrupadosPorDia = pontoService.listarRegistroPontoPorFuncionario(funcionario, mesAno);
+                    pontoAgrupadosPorDia.forEach((dataPonto, listaPonto) -> {
+                        System.out.println();
+                        System.out.println("Data - " + dataPonto);
+                        System.out.println("|ENTRADA      |SAIDA INT    |VOLTA INT    |SAIDA       ");
+                        for(RegistroPonto horario: listaPonto) {
+                            System.out.print(horario.getHorario().format(DateTimeFormatter.ofPattern("|hh:mm:ss     ")));
+                        }
+                        System.out.println();
+                    });
+                } else {
+                    System.out.println("O formato de dado repassado é inválido");
+                }
 
-                dataList.forEach((dataPonto, listaPonto) -> {
-                    System.out.println("Data - " + dataPonto);
-                    int counter = 0;
-                    String[] etiquetas = {"ENTRADA", "SAIDA INT", "VOLTA INT", "SAIDA"};
-                    for(RegistroPonto horario: listaPonto) {
-                        System.out.println(etiquetas[counter] + " - " + horario.getHorario().format(DateTimeFormatter.ofPattern("hh:mm:ss")));
-                        counter += 1;
-                    }
-                });
             }
 
             if (op == 4 && funcionario.isGestor()) {

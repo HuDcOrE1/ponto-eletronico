@@ -1,11 +1,11 @@
 package com.br.ponto_eletronico.service;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import com.br.ponto_eletronico.entity.*;
 import com.br.ponto_eletronico.repository.InconsistenciaRepository;
@@ -223,8 +223,16 @@ public class PontoService {
     }
 
     
-    public List<RegistroPonto> listarRegistroPontoPorFuncionario(Funcionario funcionario){
-        return repository.buscarRegistrosPorFuncionario(funcionario);
+    public Map<String, List<RegistroPonto>> listarRegistroPontoPorFuncionario(Funcionario funcionario, String mesAno){
+        YearMonth mesAnoSelecionado = YearMonth.parse(mesAno, DateTimeFormatter.ofPattern("MM/yyyy"));
+        var pontosAgrupadosPorDia = repository.buscarRegistrosPorFuncionario(funcionario).stream().filter(ponto -> {
+            YearMonth pontoMesAnoFuncionario = YearMonth.of(ponto.getHorario().getYear(), ponto.getHorario().getMonth());
+            return mesAnoSelecionado.equals(pontoMesAnoFuncionario);
+        }).collect(Collectors.groupingBy(item -> {
+            return item.getHorario().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        }));
+        return pontosAgrupadosPorDia;
+
     }
     
     public void resolverInconsistencia(Long idInconsistencia, List<String> horariosStr) throws RegraPontoException {
