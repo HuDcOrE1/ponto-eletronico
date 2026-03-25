@@ -28,7 +28,7 @@ public class RelatorioService {
     private InconsistenciaService inconsistenciaService =
             new InconsistenciaService();
 
-    public ControleDiario gerarRelatorioControleDiario(FuncionarioComum funcionario) {
+    public ControleDiario gerarRelatorioControleDiario(FuncionarioComum funcionario, Gestor gestor) {
 
         LocalDate hoje = LocalDate.now();
         LocalDateTime now = LocalDate.now().atStartOfDay();
@@ -62,7 +62,7 @@ public class RelatorioService {
         return controle;
     }
 
-    public List<GestaoHoras> gerarRelatorioGestaoHoras(FuncionarioComum funcionario, int ano, int mes) {
+    public List<GestaoHoras> gerarRelatorioGestaoHoras(FuncionarioComum funcionario, int ano, int mes, Gestor gestor) {
         List<GestaoHoras> relatorio = new ArrayList<>();
 
         List<RegistroPonto> registros =
@@ -86,7 +86,7 @@ public class RelatorioService {
         return relatorio;
     }
 
-    public List<SituacaoMensal> gerarRelatorioMensal(int ano, int mes) {
+    public List<SituacaoMensal> gerarRelatorioMensal(int ano, int mes, Gestor gestor) {
 
         List<SituacaoMensal> relatorio = new ArrayList<>();
 
@@ -115,7 +115,7 @@ public class RelatorioService {
         return relatorio;
     }
 
-    public String gerarCsv(Integer op, int ano, int mes, Path ABSOLUTE_PATH, FuncionarioComum funcionario) {
+    public String gerarCsv(Integer op, int ano, int mes, Path ABSOLUTE_PATH, FuncionarioComum funcionario, Gestor gestor) {
         StringBuilder csv = new StringBuilder();
         String nomeArquivo;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -123,7 +123,7 @@ public class RelatorioService {
         switch (op) {
 
             case 1:
-                ControleDiario relatorioCD = gerarRelatorioControleDiario(funcionario);
+                ControleDiario relatorioCD = gerarRelatorioControleDiario(funcionario, gestor);
                 csv.append("Funcionario;Matricula;Data;Horario;Tipo\n");
                 DateTimeFormatter dataFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 DateTimeFormatter horaFmt = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -151,7 +151,7 @@ public class RelatorioService {
                 break;
 
             case 2:
-                List<GestaoHoras> relatorioGH = gerarRelatorioGestaoHoras(funcionario, ano, mes);
+                List<GestaoHoras> relatorioGH = gerarRelatorioGestaoHoras(funcionario, ano, mes, gestor);
                 csv.append("Funcionario;Matricula;Saldo Horas;Horas Extras;Horas Devidas\n");
 
                 for (GestaoHoras gestaoHoras : relatorioGH) {
@@ -167,7 +167,7 @@ public class RelatorioService {
                 break;
 
             case 3:
-                List<SituacaoMensal> relatorioSM = gerarRelatorioMensal(ano, mes);
+                List<SituacaoMensal> relatorioSM = gerarRelatorioMensal(ano, mes, gestor);
                 csv.append("Funcionario;Matricula;Horas Esperadas;Horas Trabalhadas;Saldo;Dias Trabalhados;Inconsistencias\n");
 
                 for (SituacaoMensal d : relatorioSM) {

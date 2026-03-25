@@ -23,7 +23,6 @@ public class Gestor extends Funcionario {
     }
 
     public void removerFuncionario(FuncionarioComum funcionario) {
-        funcionario.setGestor(null);
         equipe.remove(funcionario);
     }
 }

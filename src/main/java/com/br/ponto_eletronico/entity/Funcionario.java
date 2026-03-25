@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "FUNCIONARIO")
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "TIPO_FUNCIONARIO")
 public abstract class Funcionario {
 
     @Id

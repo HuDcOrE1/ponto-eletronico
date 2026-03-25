@@ -15,6 +15,7 @@ public class Application {
 
         MenuConsole menu = new MenuConsole();
         menu.iniciar();
+        H2Console.stop();
 
     }
 }

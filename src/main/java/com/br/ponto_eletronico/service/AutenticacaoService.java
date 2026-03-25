@@ -11,10 +11,10 @@ public class AutenticacaoService {
     public Funcionario login(String matricula, String senha) {
 
         Funcionario funcionario = repository.login(matricula)
-                .orElseThrow(() -> new AutenticacaoException("Funcionário não encontrado"));
+                .orElseThrow(() -> new AutenticacaoException("Usuario ou Senha inválida"));
 
         if (!funcionario.getSenha().equals(senha)) {
-            throw new AutenticacaoException("Senha inválida");
+            throw new AutenticacaoException("Usuario ou Senha inválida");
         }
 
         return funcionario;
