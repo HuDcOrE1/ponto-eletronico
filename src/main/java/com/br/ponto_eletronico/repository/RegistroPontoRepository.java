@@ -46,4 +46,77 @@ public class RegistroPontoRepository {
 
         return lista;
     }
+
+    public List<RegistroPonto> buscarRegistrosDia(Funcionario funcionario, LocalDate dia) {
+
+        EntityManager em = JPAUtil.getEntityManager();
+
+        LocalDateTime inicio = dia.atStartOfDay();
+        LocalDateTime fim = dia.atTime(23,59,59);
+
+        List<RegistroPonto> lista = em.createQuery(
+                        "FROM RegistroPonto r WHERE r.funcionario = :funcionario " +
+                                "AND r.horario BETWEEN :inicio AND :fim " +
+                                "ORDER BY r.horario",
+                        RegistroPonto.class)
+                .setParameter("funcionario", funcionario)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
+
+        em.close();
+
+        return lista;
+    }
+
+    public List<RegistroPonto> buscarRegistrosPorFuncionario(Funcionario funcionario){
+        EntityManager em = JPAUtil.getEntityManager();
+
+        List<RegistroPonto> lista = em.createQuery(
+                "FROM RegistroPonto r WHERE r.funcionario = :funcionario " +
+                "ORDER BY r.horario",
+                RegistroPonto.class)
+                .setParameter("funcionario", funcionario).getResultList();
+
+        return lista;
+    }
+
+    
+    public List<RegistroPonto> buscarRegistrosPorData(Funcionario funcionario, LocalDate data) {
+        EntityManager em = JPAUtil.getEntityManager();
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(23, 59, 59);
+
+        List<RegistroPonto> lista = em.createQuery(
+                        "FROM RegistroPonto r WHERE r.funcionario = :funcionario " +
+                                "AND r.horario BETWEEN :inicio AND :fim " +
+                                "ORDER BY r.horario",
+                        RegistroPonto.class)
+                .setParameter("funcionario", funcionario)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
+
+        em.close();
+
+        return lista;
+    }
+
+    public void deletarLista(List<RegistroPonto> registros) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            for (RegistroPonto r : registros) {
+                em.getTransaction().begin();
+                RegistroPonto registroMerged = em.contains(r) ? r : em.merge(r);
+                em.remove(registroMerged);
+                em.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 }

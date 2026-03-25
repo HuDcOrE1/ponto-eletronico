@@ -28,11 +28,11 @@ public class DatabaseInitializer {
             String schema = Files.readString(
                     Paths.get("src/main/resources/database/schema.sql"));
 
-            String data = Files.readString(
-                    Paths.get("src/main/resources/database/data.sql"));
+//            String data = Files.readString(
+//                    Paths.get("src/main/resources/database/data.sql"));
 
             stmt.execute(schema);
-            stmt.execute(data);
+//            stmt.execute(data);
 
             stmt.close();
             conn.close();
