@@ -1,6 +1,7 @@
 package com.br.ponto_eletronico.console;
 
 import com.br.ponto_eletronico.entity.Funcionario;
+import com.br.ponto_eletronico.entity.Gestor;
 import com.br.ponto_eletronico.service.FuncionarioService;
 import com.br.ponto_eletronico.service.InconsistenciaService;
 import com.br.ponto_eletronico.service.PontoService;
@@ -19,13 +20,15 @@ public class GerenciaConsole {
     private DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private RelatorioService relatorioService = new RelatorioService();
     private RelatorioConsole relatorioConsole;
+    private Gestor gestor;
 
 
-    public GerenciaConsole(Scanner scanner, FuncionarioService funcionarioService, InconsistenciaService inconsistenciaService) {
+    public GerenciaConsole(Scanner scanner, FuncionarioService funcionarioService, InconsistenciaService inconsistenciaService, Gestor gestor) {
         this.scanner = scanner;
         this.funcionarioService = funcionarioService;
         this.inconsistenciaService = inconsistenciaService;
-        this.relatorioConsole = new RelatorioConsole(scanner, funcionarioService, relatorioService);
+        this.relatorioConsole = new RelatorioConsole(scanner, funcionarioService, relatorioService, gestor);
+        this.gestor = gestor;
     }
 
     public void menu() {

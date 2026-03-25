@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.br.ponto_eletronico.entity.Funcionario;
+import com.br.ponto_eletronico.entity.FuncionarioComum;
+import com.br.ponto_eletronico.entity.Gestor;
 import com.br.ponto_eletronico.entity.RegistroPonto;
 import com.br.ponto_eletronico.exception.AutenticacaoException;
 import com.br.ponto_eletronico.exception.RegraPontoException;
@@ -34,28 +36,30 @@ public class MenuConsole {
     private InconsistenciaService inconsistenciaService =
             new InconsistenciaService();
     private FuncionarioService funcionarioService = new FuncionarioService();
-    private GerenciaConsole gerenciaConsole = new GerenciaConsole(scanner, funcionarioService, inconsistenciaService);
 
     public void iniciar() {
-
         System.out.println("=== SISTEMA DE PONTO ===");
 
-        System.out.print("Matricula: ");
-        String matricula = scanner.nextLine();
+        while (true) {
+            System.out.println("=== LOGIN ===");
+            System.out.print("Matricula: ");
+            String matricula = scanner.nextLine();
 
-        System.out.print("Senha: ");
-        String senha = scanner.nextLine();
+            System.out.print("Senha: ");
+            String senha = scanner.nextLine();
 
-        try {
+            try {
 
-            Funcionario funcionario =
-                    authService.login(matricula, senha);
-            menu(funcionario);
+                Funcionario funcionario =
+                        authService.login(matricula, senha);
 
-        } catch (AutenticacaoException e) {
-            System.out.println(e.getMessage());
+                menu(funcionario);
+
+            } catch (AutenticacaoException e) {
+                System.out.println(e.getMessage());
+                System.out.println("Tente novamente.\n");
+            }
         }
-
     }
 
     private void menu(Funcionario funcionario) {
@@ -70,6 +74,7 @@ public class MenuConsole {
             System.out.println("0 - Sair");
 
             int op = scanner.nextInt();
+            scanner.nextLine();
 
             if (op == 1) {
 
@@ -124,7 +129,12 @@ public class MenuConsole {
 
             }
 
-            if (op == 4 && funcionario.isGestor()) {
+            if (op == 4 && funcionario instanceof Gestor gestor) {
+                Gestor gestorComEquipe = funcionarioService.buscarGestorComEquipe(gestor.getId());
+
+                GerenciaConsole gerenciaConsole =
+                        new GerenciaConsole(scanner, funcionarioService, inconsistenciaService, gestorComEquipe);
+
                 gerenciaConsole.menu();
             }
 

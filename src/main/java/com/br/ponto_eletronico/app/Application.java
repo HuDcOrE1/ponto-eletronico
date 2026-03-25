@@ -8,12 +8,14 @@ import com.br.ponto_eletronico.console.MenuConsole;
 public class Application {
 
     public static void main(String[] args) {
+        java.util.logging.LogManager.getLogManager().reset();
         DatabaseInitializer.inicializar();
-        DataLoader.load();
+        //DataLoader.load();
         H2Console.start();
 
         MenuConsole menu = new MenuConsole();
         menu.iniciar();
+        H2Console.stop();
 
     }
 }
