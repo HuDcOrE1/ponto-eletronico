@@ -7,8 +7,6 @@ import java.util.List;
 import com.br.ponto_eletronico.config.JPAUtil;
 import com.br.ponto_eletronico.entity.Funcionario;
 import com.br.ponto_eletronico.entity.Inconsistencia;
-
-import com.br.ponto_eletronico.entity.RegistroPonto;
 import jakarta.persistence.EntityManager;
 
 public class InconsistenciaRepository {
@@ -36,22 +34,56 @@ public class InconsistenciaRepository {
         try {
 
             return em.createQuery(
-                "SELECT i FROM Inconsistencia i WHERE i.funcionario.id = :id ORDER BY i.horario",
-                Inconsistencia.class
-            )
-            .setParameter("id", funcionarioId)
-            .getResultList();
+                            "SELECT i FROM Inconsistencia i WHERE i.funcionario.id = :id ORDER BY i.horario",
+                            Inconsistencia.class
+                    )
+                    .setParameter("id", funcionarioId)
+                    .getResultList();
 
         } finally {
             em.close();
         }
     }
 
+
     public List<Inconsistencia> buscarTodas() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT i FROM Inconsistencia i ORDER BY i.horario", Inconsistencia.class)
                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Inconsistencia> getPorFuncionarioData(Long funcionarioId,
+                                                      LocalDateTime data) {
+
+        EntityManager em = JPAUtil.getEntityManager();
+
+        try {
+            LocalDateTime inicio =
+                    data.toLocalDate().atStartOfDay();
+            LocalDateTime fim =
+                    data.toLocalDate().plusDays(1)
+                            .atStartOfDay()
+                            .minusNanos(1);
+
+            return em.createQuery(
+                            """
+                            SELECT i
+                            FROM Inconsistencia i
+                            WHERE i.funcionario.id = :id
+                              AND i.horario BETWEEN :inicio AND :fim
+                            ORDER BY i.horario
+                            """,
+                            Inconsistencia.class
+                    )
+                    .setParameter("id", funcionarioId)
+                    .setParameter("inicio", inicio)
+                    .setParameter("fim", fim)
+                    .getResultList();
+
         } finally {
             em.close();
         }

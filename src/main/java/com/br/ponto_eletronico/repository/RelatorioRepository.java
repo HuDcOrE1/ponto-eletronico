@@ -55,7 +55,7 @@ public class RelatorioRepository {
         }
     }
 
-    public List<RegistroPonto> buscarPorFuncionario(String matricula, int ano, int mes, int dia) {
+    public List<RegistroPonto> buscarPorFuncionario(Funcionario funcionario, int ano, int mes, int dia) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
 
@@ -70,7 +70,7 @@ public class RelatorioRepository {
                                     "AND rp.horario < :fim " +
                                     "ORDER BY rp.horario",
                             RegistroPonto.class)
-                    .setParameter("matricula", matricula)
+                    .setParameter("matricula", funcionario.getMatricula())
                     .setParameter("inicio", inicio)
                     .setParameter("fim", fim)
                     .getResultList();

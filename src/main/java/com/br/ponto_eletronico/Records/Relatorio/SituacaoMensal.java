@@ -13,13 +13,13 @@ public record SituacaoMensal(
     @Override
     public String toString() {
         return new StringBuilder()
-                .append("Funcionário            : ").append(nomeFuncionario).append("\n")
-                .append("Matrícula              : ").append(matricula).append("\n")
-                .append("Horas Esperadas        : ").append(formatarHoras(horasEsperadas)).append("\n")
-                .append("Horas Trabalhadas      : ").append(formatarHoras(horasTrabalhadas)).append("\n")
-                .append("Saldo de Horas         : ").append(formatarSaldo(saldo)).append("\n")
-                .append("Dias Trabalhados       : ").append(diasTrabalhados).append("\n")
-                .append("Inconsistências no Mês : ").append(quantidadeInconsistencias)
+                .append("Funcionário: ").append(nomeFuncionario)
+                .append(" | Matrícula: ").append(matricula)
+                .append(" | Horas Esperadas: ").append(formatarHoras(horasEsperadas))
+                .append(" | Horas Trabalhadas: ").append(formatarHoras(horasTrabalhadas))
+                .append(" | Saldo de Horas: ").append(formatarSaldo(saldo))
+                .append(" | Dias Trabalhados: ").append(diasTrabalhados)
+                .append(" | Inconsistências no Mês: ").append(quantidadeInconsistencias)
                 .toString();
     }
 

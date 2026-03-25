@@ -74,7 +74,7 @@ public class RegistroPontoRepository {
 
         List<RegistroPonto> lista = em.createQuery(
                 "FROM RegistroPonto r WHERE r.funcionario = :funcionario " +
-                "ORDER BY r.horario DESC",
+                "ORDER BY r.horario",
                 RegistroPonto.class)
                 .setParameter("funcionario", funcionario).getResultList();
 
