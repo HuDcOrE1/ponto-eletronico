@@ -106,12 +106,12 @@ public class RegistroPontoRepository {
     public void deletarLista(List<RegistroPonto> registros) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            em.getTransaction().begin();
             for (RegistroPonto r : registros) {
+                em.getTransaction().begin();
                 RegistroPonto registroMerged = em.contains(r) ? r : em.merge(r);
                 em.remove(registroMerged);
+                em.getTransaction().commit();
             }
-            em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw e;

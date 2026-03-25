@@ -56,6 +56,19 @@ public class PontoService {
             RegistroPonto ultimo =
                     registros.get(registros.size() - 1);
 
+            if (ultimo.getTipo() == TipoRegistro.ENTRADA) {
+                Duration diff =
+                        Duration.between(ultimo.getHorario(), agora);
+
+                long minutos = diff.toMinutes();
+
+                if (minutos < 120) {
+                    salvarInconsistencia(funcionario,
+                            "O ponto deve ser registrado entre a 2ª e 4ª hora");
+                }
+
+            }
+
             if (ultimo.getTipo() == TipoRegistro.SAIDA_INTERVALO) {
                 Duration diff =
                         Duration.between(ultimo.getHorario(), agora);
@@ -99,6 +112,9 @@ public class PontoService {
             if (jornada.toMinutes() > 370) {
                 salvarInconsistencia(funcionario,
                         "Jornada maior que 6 horas");
+            } else if (jornada.toMinutes() < 350) {
+                salvarInconsistencia(funcionario,
+                        "Jornada menor que 6 horas");
             }
         }
         // =========================
@@ -141,7 +157,7 @@ public class PontoService {
         System.out.println("Inconsistência registrada: " + descricao);
     }
 
-    public void baterPontoAntigo(Funcionario funcionario, LocalDateTime horario) {
+    public void baterPontoDump(Funcionario funcionario, LocalDateTime horario) {
         LocalDate dia = horario.toLocalDate();
 
         List<RegistroPonto> registros =
@@ -255,7 +271,10 @@ public class PontoService {
             repository.salvar(novoRegistro);
         }
 
-        inconsistenciaRepository.deletar(i);
-        System.out.println("Inconsistência resolvida e pontos sobresscritos.");
+        List<Inconsistencia> inconsistenciasExistentes = inconsistenciaRepository.buscarInconsistenciaPorData(f, dataInconsistencia);
+        inconsistenciaRepository.deletarListaInconsistencia(inconsistenciasExistentes);
+
+//        inconsistenciaRepository.deletar(i);
+        System.out.println("Inconsistências resolvidas e pontos sobresscritos.");
     }
 }

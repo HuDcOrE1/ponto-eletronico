@@ -70,10 +70,10 @@ public class GeradorPontos {
                             voltaIntervalo.plusHours(4)
                                     .plusMinutes(random.nextInt(10));
 
-                    service.baterPontoAntigo(f, entrada);
-                    service.baterPontoAntigo(f, saidaIntervalo);
-                    service.baterPontoAntigo(f, voltaIntervalo);
-                    service.baterPontoAntigo(f, saidaFinal);
+                    service.baterPontoDump(f, entrada);
+                    service.baterPontoDump(f, saidaIntervalo);
+                    service.baterPontoDump(f, voltaIntervalo);
+                    service.baterPontoDump(f, saidaFinal);
 
                     System.out.println("Dia " + data + " gerado");
                 }

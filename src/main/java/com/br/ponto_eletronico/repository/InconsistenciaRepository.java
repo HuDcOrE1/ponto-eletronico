@@ -1,10 +1,14 @@
 package com.br.ponto_eletronico.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.br.ponto_eletronico.config.JPAUtil;
+import com.br.ponto_eletronico.entity.Funcionario;
 import com.br.ponto_eletronico.entity.Inconsistencia;
 
+import com.br.ponto_eletronico.entity.RegistroPonto;
 import jakarta.persistence.EntityManager;
 
 public class InconsistenciaRepository {
@@ -70,6 +74,44 @@ public class InconsistenciaRepository {
             Inconsistencia i = em.contains(inconsistencia) ? inconsistencia : em.merge(inconsistencia);
             em.remove(i);
             em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Inconsistencia> buscarInconsistenciaPorData(Funcionario funcionario, LocalDate data) {
+        EntityManager em = JPAUtil.getEntityManager();
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(23, 59, 59);
+
+        List<Inconsistencia> lista = em.createQuery(
+                        "FROM Inconsistencia i WHERE i.funcionario = :funcionario " +
+                                "AND i.horario BETWEEN :inicio AND :fim " +
+                                "ORDER BY i.horario",
+                        Inconsistencia.class)
+                .setParameter("funcionario", funcionario)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
+
+        em.close();
+
+        return lista;
+    }
+
+    public void deletarListaInconsistencia(List<Inconsistencia> inconsistencias) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            for (Inconsistencia i : inconsistencias) {
+                em.getTransaction().begin();
+                Inconsistencia inconsistenciaMerge = em.contains(i) ? i : em.merge(i);
+                em.remove(inconsistenciaMerge);
+                em.getTransaction().commit();
+            }
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw e;

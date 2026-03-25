@@ -22,7 +22,7 @@ import com.br.ponto_eletronico.service.AutenticacaoService;
 import com.br.ponto_eletronico.service.FuncionarioService;
 import com.br.ponto_eletronico.service.InconsistenciaService;
 import com.br.ponto_eletronico.service.PontoService;
-import jdk.swing.interop.SwingInterOpUtils;
+//import jdk.swing.interop.SwingInterOpUtils;
 
 public class MenuConsole {
 
