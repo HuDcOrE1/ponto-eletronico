@@ -31,9 +31,12 @@ public class RelatorioConsole {
         System.out.println("1 - Controle diário");
         System.out.println("2 - Gestão de horas");
         System.out.println("3 - Situação do mês");
+        System.out.println("0 - Voltar");
         Integer opRelatorio = scanner.nextInt();
 
         switch (opRelatorio) {
+            case 0:
+                break;
             case 1:
                 System.out.println("Relatório: Controle diário");
                 espelhoPonto(scanner, opRelatorio);
@@ -69,11 +72,11 @@ public class RelatorioConsole {
             System.out.println("Nome: " + f.getNome());
             System.out.println("Matrícula: " + f.getMatricula());
 
-            List<ControleDiario> list = relatorioService.gerarRelatorioControleDiario();
-            list.forEach(System.out::println);
+            ControleDiario relatorioCD = relatorioService.gerarRelatorioControleDiario(f);
+            System.out.println(relatorioCD.toString());
 
             Path basePath = Paths.get("relatorio", "ControleDiario");
-            solicitarExportacaoCsv(scanner, op, basePath,0, 0);
+            solicitarExportacaoCsv(scanner, op, basePath,0, 0, f);
         } else {
             System.out.println("Funcionário não encontrado.");
         }
@@ -88,11 +91,11 @@ public class RelatorioConsole {
             System.out.println("Nome: " + f.getNome());
             System.out.println("Matrícula: " + f.getMatricula());
             Competencia competencia = solicitarCompetencia(scanner);
-            List<GestaoHoras> list = relatorioService.gerarRelatorioGestaoHoras(competencia.ano(), competencia.mes());
+            List<GestaoHoras> list = relatorioService.gerarRelatorioGestaoHoras(f, competencia.ano(), competencia.mes());
             list.forEach(System.out::println);
 
             Path basePath = Paths.get("relatorio", "GestaoHoras");
-            solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes());
+            solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes(), f);
         } else {
             System.out.println("Funcionário não encontrado.");
         }
@@ -106,17 +109,17 @@ public class RelatorioConsole {
         list.forEach(System.out::println);
 
         Path basePath = Paths.get("relatorio", "SituacaoMensal");
-        solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes());
+        solicitarExportacaoCsv(scanner, op, basePath,competencia.ano(), competencia.mes(), null);
     }
 
-    public void solicitarExportacaoCsv(Scanner scanner, int op, Path ABSOLUTE_PATH, int ano, int mes){
+    public void solicitarExportacaoCsv(Scanner scanner, int op, Path ABSOLUTE_PATH, int ano, int mes, Funcionario funcionario){
         System.out.println("\n=== EXPORTAR RELATÓRIO PARA CSV ===");
         System.out.println("0 - NÃO");
         System.out.println("1 - SIM");
         Integer opCsv = scanner.nextInt();
 
         if (opCsv == 1){
-            String output = relatorioService.gerarCsv(op, ano, mes, ABSOLUTE_PATH);
+            String output = relatorioService.gerarCsv(op, ano, mes, ABSOLUTE_PATH, funcionario);
             System.out.println(output);
         }
     }

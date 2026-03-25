@@ -1,6 +1,7 @@
 package com.br.ponto_eletronico.Records.Relatorio;
 
-import com.br.ponto_eletronico.Records.Relatorio.MarcacaoPonto;
+import com.br.ponto_eletronico.entity.Inconsistencia;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,11 +9,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public record ControleDiario(
         String nomeFuncionario,
         String matricula,
         LocalDate data,
+        List<Inconsistencia> inconsistencias,
         List<MarcacaoPonto> marcacoes,
         double horasTrabalhadas,
         double horasExtras
@@ -52,14 +55,17 @@ public record ControleDiario(
         return total;
     }
 
-    public ControleDiario adicionarMarcacao(MarcacaoPonto marcacao) {
-        List<MarcacaoPonto> novaLista = new ArrayList<>(this.marcacoes);
-        novaLista.add(marcacao);
+
+    public ControleDiario comMarcacao(MarcacaoPonto novaMarcacao) {
+        List<MarcacaoPonto> novasMarcacoes = new ArrayList<>(this.marcacoes);
+        novasMarcacoes.add(novaMarcacao);
+
         return new ControleDiario(
                 nomeFuncionario,
                 matricula,
                 data,
-                novaLista,
+                inconsistencias,
+                novasMarcacoes,
                 0,
                 0
         );
@@ -101,6 +107,14 @@ public record ControleDiario(
         sb.append("  Horas Extras     : ")
                 .append(String.format("%.2f", horasExtras))
                 .append(" h\n");
+
+        if (!inconsistencias.isEmpty()){
+            sb.append("  Inconsistências: ");
+            for (Inconsistencia inconsistencia : inconsistencias) {
+                sb.append(inconsistencia.getDescricao())
+                        .append("\n");
+            }
+        }
 
         sb.append("========================================");
 

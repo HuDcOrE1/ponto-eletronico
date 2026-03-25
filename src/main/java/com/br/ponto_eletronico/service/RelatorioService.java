@@ -7,8 +7,10 @@ import com.br.ponto_eletronico.Records.Relatorio.MarcacaoPonto;
 import com.br.ponto_eletronico.Records.Relatorio.MarcacaoPonto;
 import com.br.ponto_eletronico.Records.Relatorio.SituacaoMensal;
 import com.br.ponto_eletronico.entity.Funcionario;
+import com.br.ponto_eletronico.entity.Inconsistencia;
 import com.br.ponto_eletronico.entity.RegistroPonto;
 import com.br.ponto_eletronico.entity.TipoRegistro;
+import com.br.ponto_eletronico.repository.InconsistenciaRepository;
 import com.br.ponto_eletronico.repository.RelatorioRepository;
 
 import java.io.IOException;
@@ -26,72 +28,63 @@ public class RelatorioService {
     private RelatorioRepository repository =
             new RelatorioRepository();
 
-    public List<ControleDiario> gerarRelatorioControleDiario() {
+    private InconsistenciaService inconsistenciaService =
+            new InconsistenciaService();
 
-        List<ControleDiario> relatorio = new ArrayList<>();
-        List<Funcionario> funcionarios = repository.buscarTodosFuncionarios();
+    public ControleDiario gerarRelatorioControleDiario(Funcionario funcionario) {
 
-        for (Funcionario f : funcionarios) {
-
-            LocalDate hoje = LocalDate.now();
-
-            ControleDiario controle = new ControleDiario(
-                    f.getNome(),
-                    f.getMatricula(),
-                    hoje,
-                    List.of(), // começa sem marcações
-                    0,
-                    0
-            );
-
-            List<RegistroPonto> registros =
-                    repository.buscarPorFuncionario(
-                            f.getMatricula(),
-                            hoje.getYear(),
-                            hoje.getMonthValue(),
-                            hoje.getDayOfMonth()
-                    );
-
-            registros.sort(Comparator.comparing(RegistroPonto::getHorario));
-
-            for (RegistroPonto rp : registros) {
-                controle = controle.adicionarMarcacao(
-                        new MarcacaoPonto(LocalDateTime.now(), TipoRegistro.ENTRADA)
+        LocalDate hoje = LocalDate.now();
+        LocalDateTime now = LocalDate.now().atStartOfDay();
+        List<Inconsistencia> inconsistencias = inconsistenciaService.getPorFuncionarioData(funcionario, now);
+        List<RegistroPonto> registros =
+                repository.buscarPorFuncionario(
+                        funcionario.getMatricula(),
+                        hoje.getYear(),
+                        hoje.getMonthValue(),
+                        hoje.getDayOfMonth()
                 );
-            }
 
-            relatorio.add(controle);
+        ControleDiario controle = new ControleDiario(
+                funcionario.getNome(),
+                funcionario.getMatricula(),
+                hoje,
+                inconsistencias,
+                List.of(),
+                0,
+                0
+        );
+
+        registros.sort(Comparator.comparing(RegistroPonto::getHorario));
+
+        for (RegistroPonto registroPonto : registros) {
+            controle = controle.comMarcacao(
+                    new MarcacaoPonto(registroPonto.getHorario(), registroPonto.getTipo())
+            );
         }
 
-        return relatorio;
+        return controle;
     }
 
-    public List<GestaoHoras> gerarRelatorioGestaoHoras(int ano, int mes) {
-
+    public List<GestaoHoras> gerarRelatorioGestaoHoras(Funcionario funcionario, int ano, int mes) {
         List<GestaoHoras> relatorio = new ArrayList<>();
 
-        List<Funcionario> funcionarios = repository.buscarTodosFuncionarios();
+        List<RegistroPonto> registros =
+                repository.buscarPorFuncionario(funcionario.getId(), ano, mes);
 
-        for (Funcionario f : funcionarios) {
+        double horas = calcularHoras(registros);
 
-            List<RegistroPonto> registros =
-                    repository.buscarPorFuncionario(f.getId(), ano, mes);
+        double horasEsperadas = calcularHorasEsperadas(6, ano, mes);
+        double saldo = horas;
 
-            double horas = calcularHoras(registros);
+        GestaoHoras gestao = new GestaoHoras(
+                funcionario.getNome(),
+                funcionario.getMatricula(),
+                saldo,
+                saldo > horasEsperadas ? saldo - horasEsperadas : 0,
+                saldo < horasEsperadas ? horasEsperadas - saldo : 0
+        );
 
-            double horasEsperadas = calcularHorasEsperadas(6, ano, mes);
-            double saldo = horas;
-
-            GestaoHoras gestao = new GestaoHoras(
-                    f.getNome(),
-                    f.getMatricula(),
-                    saldo,
-                    saldo > horasEsperadas ? saldo - horasEsperadas : 0,
-                    horasEsperadas - saldo
-            );
-
-            relatorio.add(gestao);
-        }
+        relatorio.add(gestao);
 
         return relatorio;
     }
@@ -102,16 +95,16 @@ public class RelatorioService {
 
         List<Funcionario> funcionarios = repository.buscarTodosFuncionarios();
 
-        for (Funcionario f : funcionarios) {
-            List<RegistroPonto> registros = repository.buscarPorFuncionario(f.getId(), ano, mes);
+        for (Funcionario funcionario : funcionarios) {
+            List<RegistroPonto> registros = repository.buscarPorFuncionario(funcionario.getId(), ano, mes);
             double horasTrabalhadas = calcularHoras(registros);
             double horasEsperadas = calcularHorasEsperadas(6, ano, mes);
-            long inconsistencias = repository.contarInconsistencias(f.getId(), ano, mes);
+            long inconsistencias = repository.contarInconsistencias(funcionario.getId(), ano, mes);
 
 
             SituacaoMensal situacao = new SituacaoMensal(
-                    f.getNome(),
-                    f.getMatricula(),
+                    funcionario.getNome(),
+                    funcionario.getMatricula(),
                     horasEsperadas,
                     horasTrabalhadas,
                     inconsistencias,
@@ -125,7 +118,7 @@ public class RelatorioService {
         return relatorio;
     }
 
-    public String gerarCsv(Integer op, int ano, int mes, Path ABSOLUTE_PATH) {
+    public String gerarCsv(Integer op, int ano, int mes, Path ABSOLUTE_PATH, Funcionario funcionario) {
         StringBuilder csv = new StringBuilder();
         String nomeArquivo;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -133,47 +126,43 @@ public class RelatorioService {
         switch (op) {
 
             case 1:
-                List<ControleDiario> relatorioCD = gerarRelatorioControleDiario();
+                ControleDiario relatorioCD = gerarRelatorioControleDiario(funcionario);
                 csv.append("Funcionario;Matricula;Data;Horario;Tipo\n");
                 DateTimeFormatter dataFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 DateTimeFormatter horaFmt = DateTimeFormatter.ofPattern("HH:mm:ss");
-                String matriculaFuncionario = null;
 
-                for (ControleDiario d : relatorioCD) {
-                    matriculaFuncionario = d.matricula();
-                    if (d.marcacoes() == null || d.marcacoes().isEmpty()) {
-                        csv.append(d.nomeFuncionario()).append(";")
-                                .append(d.matricula()).append(";")
-                                .append(d.data().format(dataFmt)).append(";")
-                                .append(";")
-                                .append(";")
-                                .append("\n");
-                        continue;
-                    }
-
-                    for (MarcacaoPonto m : d.marcacoes()) {
-                        csv.append(d.nomeFuncionario()).append(";")
-                                .append(d.matricula()).append(";")
-                                .append(d.data().format(dataFmt)).append(";")
+                if (!relatorioCD.marcacoes().isEmpty()) {
+                    for (MarcacaoPonto m : relatorioCD.marcacoes()) {
+                        csv.append(relatorioCD.nomeFuncionario()).append(";")
+                                .append(relatorioCD.matricula()).append(";")
+                                .append(relatorioCD.data().format(dataFmt)).append(";")
                                 .append(m.horario().format(horaFmt)).append(";")
                                 .append(m.tipo()).append(";")
                                 .append("\n");
                     }
                 }
 
-                nomeArquivo = "relatorio_controle_diario_" + LocalDate.now().format(fmt) + matriculaFuncionario + ".csv";
+                if (!relatorioCD.inconsistencias().isEmpty()) {
+                    csv.append("Inconsistências: \n");
+                    for (Inconsistencia inconsistencia : relatorioCD.inconsistencias()) {
+                        csv.append(inconsistencia.getDescricao())
+                                .append("\n");
+                    }
+                }
+
+                nomeArquivo = "relatorio_controle_diario_" + LocalDate.now().format(fmt) + relatorioCD.matricula() + ".csv";
                 break;
 
             case 2:
-                List<GestaoHoras> relatorioGH = gerarRelatorioGestaoHoras(ano, mes);
+                List<GestaoHoras> relatorioGH = gerarRelatorioGestaoHoras(funcionario, ano, mes);
                 csv.append("Funcionario;Matricula;Saldo Horas;Horas Extras;Horas Devidas\n");
 
-                for (GestaoHoras d : relatorioGH) {
-                    csv.append(d.nomeFuncionario()).append(";")
-                            .append(d.matricula()).append(";")
-                            .append(d.saldoHorasFormatado()).append(";")
-                            .append(d.horasExtrasFormatado()).append(";")
-                            .append(d.horasDevidasFormatado())
+                for (GestaoHoras gestaoHoras : relatorioGH) {
+                    csv.append(gestaoHoras.nomeFuncionario()).append(";")
+                            .append(gestaoHoras.matricula()).append(";")
+                            .append(gestaoHoras.saldoHorasFormatado()).append(";")
+                            .append(gestaoHoras.horasExtrasFormatado()).append(";")
+                            .append(gestaoHoras.horasDevidasFormatado())
                             .append("\n");
                 }
 
